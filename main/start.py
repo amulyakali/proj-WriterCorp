@@ -32,7 +32,7 @@ ocr_model = OcrModel(open(FilePaths.fnCharList).read(), FilePaths.ocr_model_file
 print("New session created")
 
 ## contour prediction
-model_name = 'contour_classify.h5'
+model_name = 'contour_classify_vgg.h5'
 print("loading keras model")
 classify_model = load_model(model_name)
 
@@ -59,9 +59,9 @@ def contains_word(key_wrd, text,mismatches_allowed=False,end=False):
 
 def contains_key_words(text, mismatches=[],end=False):
     text = " "+text.replace("\n"," ").lower()+" "
-    key_wrds = ["dispensed","machine","counter","cassette","date","increase","decrease","out","rejected","time","bank",\
-                "remaining","total","left","disp","tot","str","inc","dec"," ic "," dc "," oc ","record"," pay","card","amount",\
-                "bal"]
+    key_wrds = ["dispensed","machine","counter","cassette"," date "," increase ","decrease"," out ","rejected"," time ",
+                "remaining"," total "," left "," disp "," tot "," str "," inc "," dec "," ic "," dc "," oc ","record",
+                " pay"," card","amount"," bal "," bank "," type ","cleared"]
     for idx,key in enumerate(key_wrds):
         if len(mismatches) > 0:
             mis_allowed = mismatches[idx]
@@ -70,6 +70,7 @@ def contains_key_words(text, mismatches=[],end=False):
         if isinstance(key,str):
             word_search = contains_word(key, text,mis_allowed,end)
             if word_search[0]:
+                print("Found match",word_search[1],"key--",key)
                 return word_search[1]
         else:
             full_word_search = contains_word(" ".join(key),text,mis_allowed,end)
@@ -80,6 +81,7 @@ def contains_key_words(text, mismatches=[],end=False):
                         contains_all_words = False
                         break
                 if contains_all_words:
+                    print("Found match", full_word_search[1], "key--", key)
                     return full_word_search[1]
     return False
 
@@ -169,7 +171,7 @@ def model_extract(img_path):
 
 if __name__=="__main__":
     folder = "error-samples"
-    for im in ['1VW420501_02_19_2020_EOD_CB.jpeg']:
+    for im in ['S1AC0141502_02_18_2020_EOD_SA.jpeg']:
     # for im in os.listdir(folder):
         im_p = os.path.join(folder,im)
         model_extract(im_p)

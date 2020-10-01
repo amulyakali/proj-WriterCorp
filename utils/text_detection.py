@@ -395,11 +395,12 @@ class TextDetection:
         preds = get_contour_type(to_classify,self.cls_model)
         irr_mask = np.zeros(cleaned.shape[:2], np.uint8)
         for idx, pred in enumerate(preds):
-            if pred[0] == 0:
+            if pred[0] < 0.4:
                 c = to_classify_coords[idx]
                 cv2.drawContours(irr_mask, [c], -1, 255, -1)
 
         irr_mask = cv2.bitwise_not(irr_mask)
+        cv2.imwrite("irr.jpg",irr_mask)
         cleaned_fin = cv2.bitwise_and(cleaned, irr_mask)
         cleaned_fin = removeBorder(cleaned_fin)
         return cleaned_fin
@@ -694,13 +695,17 @@ class TextDetection:
     def extract_cropped_text(self, y_min, y_max, x_min, x_max, line_indices_to_modify):
         snippet_color = self.oriented_orig_img[y_min:y_max, x_min:x_max]
         cp = snippet_color.copy()
+        # cv2.imshow("w",cp)
+        # cv2.waitKey(0)
         # snippet = cv2.cvtColor(self.oriented_orig_img[y_min:y_max, x_min:x_max],cv2.COLOR_BGR2GRAY)
         # snip_thresh = cv2.threshold(snippet, 80, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)[1]
         snip_thresh = self.oriented_img_thresh[y_min:y_max, x_min:x_max]
         rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 1))
         snip_dilated = cv2.morphologyEx(snip_thresh, cv2.MORPH_CLOSE, rectKernel)
-        snip_thresh_dilated = cv2.threshold(snip_dilated, 80, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
 
+        rectKernel2 = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 1))
+        snip_dilated_2 = cv2.morphologyEx(snip_thresh, cv2.MORPH_OPEN, rectKernel2)
+        snip_thresh_dilated = cv2.threshold(snip_dilated, 80, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
         # for idx in line_indices_to_modify:
         #     for word in self.lines[idx]:
         #         [x,y,w,h] = word["pts"]

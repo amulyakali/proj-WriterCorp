@@ -5,7 +5,7 @@ import cv2
 import os
 
 ## contour prediction
-model_name = 'contour_classify.h5'
+model_name = 'contour_classify_vgg.h5'
 print("loading keras model")
 classify_model = load_model(model_name)
 
